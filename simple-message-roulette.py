@@ -1,28 +1,40 @@
+import tkinter as tk
+from tkinter import messagebox
 import random
+from datetime import datetime
 
-phrases = [
-    "message1",
-    "message2",
-    "message3",
-    "message4",
-    "message5",
-    "message6",
-    "message7",
-    "message8",
-    "message9",
-    "message10"
-]
+def generate_random_messages(num):
+    phrases = ["message{}".format(i) for i in range(1, 11)]
+    emojis = ["🔴", "🟠", "🟡", "🟢", "🔵"]
+    if not phrases or not emojis:
+        messagebox.showerror("Error", "No phrases or emojis to generate")
+        return
+    for _ in range(num):
+        phrase = random.choice(phrases)
+        emoji = random.choice(emojis)
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"{phrase} {timestamp}: {emoji}")
 
-emoji = [
-    "🔴",
-    "🟠",
-    "🟡",
-    "🟢",
-    "🔵"
-]
+def run():
+    try:
+        num_phrases = int(num_entry.get())
+        if num_phrases < 1:
+            raise ValueError
+        generate_random_messages(num_phrases)
+    except ValueError:
+        messagebox.showerror("Input error", "Please enter a positive integer.")
 
-# Randomly select how many phrases to print (between 1 and 5)
-num_phrases = random.randint(1, 5)
+root = tk.Tk()
+root.title("Message Generator")
+frame = tk.Frame(root)
+frame.pack(padx=10, pady=10)
 
-for _ in range(num_phrases):
-    print("message0 " + random.choice(phrases) + " " + random.choice(emoji))
+label = tk.Label(frame, text="Number of Messages:")
+label.grid(row=0, column=0)
+num_entry = tk.Entry(frame)
+num_entry.grid(row=0, column=1)
+
+run_button = tk.Button(frame, text="Run", command=run)
+run_button.grid(row=1, column=0, columnspan=2, pady=5)
+
+root.mainloop()
