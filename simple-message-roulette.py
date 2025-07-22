@@ -1,47 +1,32 @@
 import tkinter as tk
-from tkinter import scrolledtext
+from PIL import Image, ImageTk
+import os
 import random
-from datetime import datetime
 
-def generate_random_messages(num):
-    phrases = [f"message{i}" for i in range(1, 11)]
-    emojis = ["🔴", "🟠", "🟡", "🟢", "🔵"]
-    output_box.delete(1.0, tk.END)  # Clear previous output
+# Path to your downloaded emoji PNG folder
+EMOJI_DIR = "emoji_png"
 
-    for _ in range(num):
-        phrase = random.choice(phrases)
-        emoji = random.choice(emojis)
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        result = f"{phrase} {timestamp}: {emoji}\n"
-        output_box.insert(tk.END, result)
+# Get all PNG files in that directory
+emoji_files = [os.path.join(EMOJI_DIR, f) for f in os.listdir(EMOJI_DIR) if f.endswith(".png")]
 
-def run():
-    try:
-        count = int(entry.get())
-        if count < 1:
-            raise ValueError
-        generate_random_messages(count)
-    except ValueError:
-        output_box.delete(1.0, tk.END)
-        output_box.insert(tk.END, "❌ Please enter a valid positive number.\n")
+def show_random_emoji():
+    if not emoji_files:
+        emoji_label.config(text="No emoji images found!")
+        emoji_label.image = None
+        return
+    emoji_path = random.choice(emoji_files)
+    img = Image.open(emoji_path).resize((64, 64))
+    tk_img = ImageTk.PhotoImage(img)
+    emoji_label.config(image=tk_img, text="")  # Remove any text
+    emoji_label.image = tk_img  # Keep a reference so it isn't garbage collected
 
-# Create main window
 root = tk.Tk()
-root.title("Simple Message Generator")
+root.title("Emoji Image Viewer")
 
-# Input area
-entry_frame = tk.Frame(root)
-entry_frame.pack(pady=10)
+emoji_label = tk.Label(root, text="Click 'Show Emoji' to start", font=("Helvetica", 20))
+emoji_label.pack(pady=20)
 
-tk.Label(entry_frame, text="Number of Messages:").pack(side=tk.LEFT, padx=5)
-entry = tk.Entry(entry_frame, width=5)
-entry.pack(side=tk.LEFT)
+btn = tk.Button(root, text="Show Random Emoji", command=show_random_emoji)
+btn.pack(pady=10)
 
-tk.Button(entry_frame, text="Generate", command=run).pack(side=tk.LEFT, padx=5)
-
-# Output area
-output_box = scrolledtext.ScrolledText(root, width=40, height=10, wrap=tk.WORD)
-output_box.pack(padx=10, pady=10)
-
-# Start GUI loop
 root.mainloop()
